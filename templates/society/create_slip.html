@@ -1,0 +1,404 @@
+{% extends 'society/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4 bg-light min-vh-100">
+    <div class="container">
+        <!-- Header Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-3">
+                        <i class="fas fa-file-invoice-dollar fs-4 text-primary"></i>
+                    </div>
+                    <div>
+                        <h1 class="h3 mb-1 fw-bold text-dark">Create Maintenance Slip</h1>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Slip Form -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <form method="post" id="slipForm" action="" novalidate>
+                            {% csrf_token %}
+                            {{ form.block.as_hidden }}
+
+                            <!-- Form Fields Grid -->
+                            <div class="row g-3">
+                                {% for field in form %}
+                                    {% if field.name != "block" %}
+                                        <div class="col-12 {% if field.name == 'payment_method' or field.name == 'cheque_details' %}col-md-6{% endif %}">
+                                            <div class="form-floating">
+                                                {{ field }}
+                                                <label for="{{ field.id_for_label }}" class="form-label">
+                                                    {{ field.label }}
+                                                    {% if field.field.required %}
+                                                        <span class="text-danger">*</span>
+                                                    {% endif %}
+                                                </label>
+
+                                                <!-- Help Text -->
+                                                {% if field.help_text %}
+                                                    <small class="d-block mt-2 text-muted">
+                                                        <i class="fas fa-info-circle"></i>
+                                                        {{ field.help_text|safe }}
+                                                    </small>
+                                                {% endif %}
+
+                                                <!-- Field Errors -->
+                                                {% if field.errors %}
+                                                    <div class="mt-2">
+                                                        {% for error in field.errors %}
+                                                            <div class="alert alert-danger py-2 px-3 mb-1 rounded-2" role="alert">
+                                                                <i class="fas fa-exclamation-circle me-2"></i>
+                                                                {{ error }}
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+
+                            <!-- Amount Preview Card -->
+                            <div class="mt-4 p-3 bg-success bg-opacity-10 border border-success border-opacity-25 rounded-3">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <p class="mb-1 text-secondary small fw-semibold">Amount Preview</p>
+                                        <p class="mb-0">
+                                            <span class="text-success fs-5 fw-bold">₹</span>
+                                            <span class="text-success fs-3 fw-bold" id="amountPreview">0.00</span>
+                                        </p>
+                                    </div>
+                                    <i class="fas fa-check-circle text-success fs-1 opacity-50"></i>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="mt-4 d-flex gap-3 flex-wrap">
+                                <button type="submit" class="btn btn-primary btn-lg flex-grow-1 flex-md-grow-0">
+                                    <i class="fas fa-check me-2"></i>Submit Slip
+                                </button>
+                                <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg flex-grow-1 flex-md-grow-0">
+                                    <i class="fas fa-times me-2"></i>Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Residents Sidebar -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100 sticky-top" style="top: 20px;">
+                    <div class="card-body p-4">
+                        <!-- Sidebar Header -->
+                        <div class="d-flex align-items-center gap-2 mb-4">
+                            <div class="bg-primary bg-opacity-10 p-2 rounded-2">
+                                <i class="fas fa-users text-primary"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0">Residents List</h5>
+                                <small class="text-secondary">{{ block.name }}</small>
+                            </div>
+                        </div>
+
+                        <!-- Residents Count Badge -->
+                        
+
+                        <!-- Residents List -->
+                        <ul class="list-group list-group-flush" id="residentsList">
+                            {% for r in residents %}
+                                <li class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center border-bottom-subtle">
+                                    <div>
+                                        <p class="mb-0 fw-semibold text-dark">{{ r.name }}</p>
+                                        <small class="text-secondary">{{ r.flat_no }}</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">{{ r.flat_no }}</span>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item px-0 py-4 text-center text-muted">
+                                    <i class="fas fa-inbox fs-3 mb-2 d-block opacity-50"></i>
+                                    <p class="mb-0">No residents in this block</p>
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+                        <!-- Info Box -->
+                        <div class="mt-4 p-3 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-2">
+                            <small class="text-secondary d-block">
+                                <i class="fas fa-lightbulb text-info me-2"></i>
+                                <strong>Tip:</strong> Select a date to see available residents for that month.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ======= Elements =======
+    const dateField = document.querySelector('#id_date');
+    const residentSelect = document.querySelector('#id_resident');
+    const residentsList = document.querySelector('#residentsList');
+    const residentCount = document.querySelector('#residentCount');
+    const blockId = "{{ block1.id }}";
+
+    const paymentMethodField = document.querySelector('#id_payment_method');
+    const chequeDetailsFieldWrapper = document.querySelector('#id_cheque_details')?.closest('.col-12');
+    const amountPreview = document.querySelector('#amountPreview');
+
+    // ======= Bootstrap Classes =======
+    function applyBootstrapClasses() {
+        const formControls = document.querySelectorAll('input, select, textarea');
+        formControls.forEach(el => {
+            if (!el.classList.contains('form-control') && !el.classList.contains('form-select')) {
+                if (el.tagName === 'SELECT') {
+                    el.classList.add('form-select', 'form-select-lg');
+                } else if (el.tagName === 'TEXTAREA') {
+                    el.classList.add('form-control', 'form-control-lg');
+                } else {
+                    el.classList.add('form-control', 'form-control-lg');
+                }
+            }
+        });
+    }
+    applyBootstrapClasses();
+
+    // ======= Cheque Details Toggle =======
+    function toggleChequeDetails() {
+        if (!chequeDetailsFieldWrapper) return;
+
+        if (paymentMethodField.value.toLowerCase() === 'cheque') {
+            chequeDetailsFieldWrapper.style.display = 'block';
+            chequeDetailsFieldWrapper.classList.add('fade-in');
+        } else {
+            chequeDetailsFieldWrapper.style.display = 'none';
+            const input = chequeDetailsFieldWrapper.querySelector('input, textarea');
+            if (input) input.value = '';
+        }
+    }
+
+    if (paymentMethodField && chequeDetailsFieldWrapper) {
+        toggleChequeDetails();
+        paymentMethodField.addEventListener('change', toggleChequeDetails);
+    }
+
+    // ======= Residents Fetching =======
+    function fetchAvailableResidents(dateValue) {
+        if (!dateValue) return;
+
+        fetch(`/create-slip/${blockId}/available-residents/?date=${dateValue}`)
+            .then(resp => resp.json())
+            .then(data => {
+                // Update dropdown
+                residentSelect.innerHTML = '';
+                if (!data.residents.length) {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = 'No residents available for this month';
+                    residentSelect.appendChild(opt);
+                } else {
+                    data.residents.forEach(r => {
+                        const opt = document.createElement('option');
+                        opt.value = r.id;
+                        opt.textContent = `${r.flat_no} - ${r.name}`;
+                        residentSelect.appendChild(opt);
+                    });
+                }
+
+                // Update sidebar
+                residentsList.innerHTML = '';
+                residentCount.textContent = data.residents.length;
+
+                if (!data.residents.length) {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item px-0 py-4 text-center text-muted';
+                    li.innerHTML = '<i class="fas fa-inbox fs-3 mb-2 d-block opacity-50"></i><p class="mb-0">No residents available for this month</p>';
+                    residentsList.appendChild(li);
+                } else {
+                    data.residents.forEach(r => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item px-0 py-3 d-flex justify-content-between align-items-center border-bottom-subtle';
+                        li.innerHTML = `
+                            <div>
+                                <p class="mb-0 fw-semibold text-dark">${r.name}</p>
+                                <small class="text-secondary">${r.flat_no}</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">${r.flat_no}</span>
+                        `;
+                        residentsList.appendChild(li);
+                    });
+                }
+            })
+            .catch(err => console.error("Error fetching residents:", err));
+    }
+
+    dateField?.addEventListener('change', function(e) {
+        const selectedDate = e.target.value;
+        // Update maintenance charge field to selected date if needed
+        const maintenanceField = document.querySelector('#id_maintenance_charge');
+        if (maintenanceField) maintenanceField.value = selectedDate;
+        fetchAvailableResidents(selectedDate);
+    });
+
+    if (dateField?.value) fetchAvailableResidents(dateField.value);
+
+    // ======= Amount Preview (works for any numeric input) =======
+    const numericFields = document.querySelectorAll('input[type="number"]');
+
+    function updateAmountPreview() {
+        if (!amountPreview) return;
+        let total = 0;
+        numericFields.forEach(f => {
+            const val = parseFloat(f.value);
+            if (!isNaN(val)) total += val;
+        });
+        amountPreview.textContent = total.toFixed(2);
+    }
+
+    numericFields.forEach(f => f.addEventListener('input', updateAmountPreview));
+    updateAmountPreview(); // Initial preview
+});
+    // ======= Auto Convert Amount Number to Words =======
+    const amountNumberField = document.querySelector('#id_amount_number');
+    const amountTextField = document.querySelector('#id_amount_text');
+
+    function numberToWords(num) {
+        if (!num) return '';
+        num = parseInt(num);
+        if (isNaN(num)) return '';
+
+        const a = [
+            '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven',
+            'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen',
+            'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'
+        ];
+        const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty',
+                   'seventy', 'eighty', 'ninety'];
+
+        if ((num = num.toString()).length > 9) return 'overflow';
+        let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+        if (!n) return;
+
+        let str = '';
+        str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + ' crore ' : '';
+        str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + ' lakh ' : '';
+        str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + ' thousand ' : '';
+        str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + ' hundred ' : '';
+        str += (n[5] != 0) ?
+            ((str != '') ? 'and ' : '') +
+            (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + ' ' : '';
+        return str.trim() + ' only';
+    }
+
+    if (amountNumberField && amountTextField) {
+        amountNumberField.addEventListener('input', function() {
+            const val = this.value;
+            amountTextField.value = numberToWords(val);
+        });
+    }
+    // ======= Two-way Sync Between Date and Maintenance Date =======
+    const dateFieldMain = document.querySelector('#id_date');
+    const maintenanceField = document.querySelector('#id_maintenance_charge_date');
+
+    if (dateFieldMain && maintenanceField) {
+        // When Date changes → update Maintenance Date
+        dateFieldMain.addEventListener('change', function() {
+            if (this.value !== maintenanceField.value) {
+                maintenanceField.value = this.value;
+            }
+        });
+
+        // When Maintenance Date changes → update Date
+        maintenanceField.addEventListener('change', function() {
+            if (this.value !== dateFieldMain.value) {
+                dateFieldMain.value = this.value;
+            }
+        });
+    }
+
+</script>
+
+
+
+<style>
+    .form-floating > .form-control,
+    .form-floating > .form-select {
+        border-radius: 0.5rem;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+
+    .form-floating > .form-control:focus,
+    .form-floating > .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .form-floating > label {
+        color: #6c757d;
+        font-weight: 500;
+    }
+
+    .list-group-item {
+        transition: all 0.2s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .sticky-top {
+        z-index: 10;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .min-vh-100 {
+        min-height: 100vh;
+    }
+
+    .alert {
+        border: none;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 991px) {
+        .sticky-top {
+            position: static !important;
+        }
+    }
+</style>
+{% endblock %}

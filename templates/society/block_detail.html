@@ -1,0 +1,297 @@
+{% extends 'society/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4 bg-light min-vh-100">
+    <div class="container">
+        <!-- Alert Messages -->
+        {% if messages %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm border-0" role="alert">
+                            <div class="d-flex align-items-center">
+                                {% if message.tags == 'success' %}
+                                    <i class="fas fa-check-circle me-3 fs-5"></i>
+                                {% elif message.tags == 'danger' %}
+                                    <i class="fas fa-exclamation-circle me-3 fs-5"></i>
+                                {% elif message.tags == 'warning' %}
+                                    <i class="fas fa-warning me-3 fs-5"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle me-3 fs-5"></i>
+                                {% endif %}
+                                <span>{{ message }}</span>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Header Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                    <div>
+                        <h1 class="h2 fw-bold text-dark mb-1">{{ block1.name }}</h1>
+                        <p class="mb-0 text-secondary">
+                            <i class="fas fa-home me-2"></i>
+                            <span class="badge bg-primary">{{ residents.count }} Residents</span>
+                        </p>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{% url 'create_slip_block' block1.id %}" class="btn btn-success btn-lg">
+                            <i class="fas fa-file-invoice me-2"></i>Create Maintenance Slip
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Block Information Card -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body py-3 px-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded-3">
+                                        <i class="fas fa-building text-primary fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-1 text-secondary small fw-semibold">Block Name</p>
+                                        <p class="mb-0 fw-semibold text-dark">{{ block1.name }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-info bg-opacity-10 p-3 rounded-3">
+                                        <i class="fas fa-hashtag text-info fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-1 text-secondary small fw-semibold">Block ID</p>
+                                        <p class="mb-0 fw-semibold text-dark">{{ block1.id }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Residents List Section -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-3 px-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="bg-primary bg-opacity-10 p-2 rounded-2">
+                                <i class="fas fa-users text-primary"></i>
+                            </div>
+                            <h5 class="mb-0 fw-bold">Residents List</h5>
+                            <span class="badge bg-primary ms-auto">{{ residents.count }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if residents %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="border-0 fw-semibold text-secondary ps-4">Name</th>
+                                        <th class="border-0 fw-semibold text-secondary">Flat Number</th>
+                                        <th class="border-0 fw-semibold text-secondary text-end pe-4">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for r in residents %}
+                                        <tr class="border-bottom-subtle">
+                                            <td class="ps-4 py-3">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="bg-primary bg-opacity-10 rounded-circle p-2" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-user text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="mb-0 fw-semibold text-dark">{{ r.name }}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="badge bg-info bg-opacity-20 text-info fw-semibold text-danger">{{ r.flat_no }}</span>
+                                            </td>
+                                            <td class="text-end pe-4 py-3">
+                                                <span class="badge bg-success">Active</span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="card-body py-5 text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-inbox fs-1 text-muted opacity-50"></i>
+                            </div>
+                            <p class="mb-0 text-muted">No residents in this block yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Add Resident Form Section -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom py-3 px-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="bg-success bg-opacity-10 p-2 rounded-2">
+                                <i class="fas fa-user-plus text-success"></i>
+                            </div>
+                            <h5 class="mb-0 fw-bold">Add New Resident</h5>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <form method="POST" id="addResidentForm" novalidate>
+                            {% csrf_token %}
+                            
+                            <!-- Name Field -->
+                            <div class="mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold">
+                                    {{ form.name.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-user text-secondary"></i>
+                                    </span>
+                                    {{ form.name }}
+                                </div>
+                                {% if form.name.help_text %}
+                                    <small class="d-block mt-2 text-muted">
+                                        <i class="fas fa-info-circle"></i>
+                                        {{ form.name.help_text|safe }}
+                                    </small>
+                                {% endif %}
+                                {% if form.name.errors %}
+                                    {% for error in form.name.errors %}
+                                        <div class="alert alert-danger py-2 px-3 mt-2 mb-0 rounded-2" role="alert">
+                                            <small><i class="fas fa-exclamation-circle me-2"></i>{{ error }}</small>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Flat Number Field -->
+                            <div class="mb-4">
+                                <label for="{{ form.flat_no.id_for_label }}" class="form-label fw-semibold">
+                                    {{ form.flat_no.label }}
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-door-open text-secondary"></i>
+                                    </span>
+                                    {{ form.flat_no }}
+                                </div>
+                                {% if form.flat_no.help_text %}
+                                    <small class="d-block mt-2 text-muted">
+                                        <i class="fas fa-info-circle"></i>
+                                        {{ form.flat_no.help_text|safe }}
+                                    </small>
+                                {% endif %}
+                                {% if form.flat_no.errors %}
+                                    {% for error in form.flat_no.errors %}
+                                        <div class="alert alert-danger py-2 px-3 mt-2 mb-0 rounded-2" role="alert">
+                                            <small><i class="fas fa-exclamation-circle me-2"></i>{{ error }}</small>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                <i class="fas fa-plus me-2"></i>Add Resident
+                            </button>
+
+                            <!-- Info Box -->
+                            <div class="mt-4 p-3 bg-info bg-opacity-10 border border-info border-opacity-25 rounded-2">
+                                <small class="text-secondary d-block">
+                                    <i class="fas fa-lightbulb text-info me-2"></i>
+                                    <strong>Tip:</strong> Fill in all required fields to add a new resident to this block.
+                                </small>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control,
+    .form-select,
+    .input-group-text {
+        border-radius: 0.5rem;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none !important;
+    }
+
+    .input-group .form-control {
+        border-left: none;
+    }
+
+    .input-group .form-control:focus {
+        border-left: 1px solid #0d6efd;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+    }
+
+    .badge {
+        padding: 0.35rem 0.65rem;
+        font-weight: 500;
+    }
+
+    .alert {
+        border: none;
+    }
+
+    .min-vh-100 {
+        min-height: 100vh;
+    }
+
+    @media (max-width: 576px) {
+        .btn-lg {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+        }
+
+        .h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
