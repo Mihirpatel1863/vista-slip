@@ -49,7 +49,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'socialty.wsgi.application'
-
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mihir1',          
+        'USER': 'postgres',        
+        'PASSWORD': 'mihir@1863',
+        'HOST': 'localhost',     
+        'PORT': '5432',          
+    }
+}
 
 DATABASES ["default"] = dj_database_url.parse(config('DATABASE_URL'))
 AUTH_PASSWORD_VALIDATORS = []
