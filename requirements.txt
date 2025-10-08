@@ -6,3 +6,5 @@ tzdata==2025.2
 gunicorn
 dj-database-url==1.0.0
 
+python-decouple==3.8
+
