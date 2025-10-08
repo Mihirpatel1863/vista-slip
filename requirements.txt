@@ -170,7 +170,7 @@ sortedcontainers>=2.4.0
 soupsieve>=2.7
 speedtest-cli>=2.1.3
 SQLAlchemy>=2.0.41
-sqlparse==0.2.4
+sqlparse>=0.3.1
 starlette>=0.46.2
 streamlit>=1.46.0
 stripe>=10.12.0
@@ -210,4 +210,5 @@ xxhash>=3.5.0
 yarl>=1.20.1
 zopfli>=0.2.3.post1
 zstandard>=0.23.0
+
 
